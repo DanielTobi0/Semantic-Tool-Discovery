@@ -1,8 +1,6 @@
 SEMANTIC TOOL DISCOVERY FOR LARGE LANGUAGE MODELS: A VECTOR-BASED APPROACH TO TOOL SELECTION
 
-This project parses tool definitions from [tools.py](tools.py), builds semantic tool documents, stores them in Weaviate, and retrieves only the most relevant tools for a query.
-
-It is a minimal implementation inspired by:
+It is a minimal implementation of:
 Semantic Tool Discovery for Large Language Models: A Vector-Based Approach to MCP Tool Selection
 https://arxiv.org/html/2603.20313v1
 
