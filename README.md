@@ -105,22 +105,5 @@ hits = retrieve_tool_chunks(
 )
 
 for hit in hits:
-		print(hit.server, hit.tool_name, hit.score)
+	print(hit.server, hit.tool_name, hit.score)
 ```
-
-## Retrieval Defaults (Paper-Aligned)
-
-- `top_k=3`: practical operating point highlighted in the paper
-- hybrid retrieval via `alpha=0.65`: blend lexical and semantic matching
-- optional `score_threshold`: if filtering removes all items, retrieval falls back to top-K
-
-## Troubleshooting
-
-- gRPC/connection errors to Weaviate:
-	- verify cluster URL and API key
-	- ensure your network/firewall allows outbound access to your Weaviate cloud endpoints
-- No results returned:
-	- re-run ingestion first
-	- confirm data exists in collection `McpToolChunks`
-- Vectorizer failures:
-	- verify `OPENAI_API_KEY` is set and valid
