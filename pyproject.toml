@@ -1,11 +1,10 @@
 [project]
 name = "learn-mcp"
 version = "0.1.0"
-description = "Add your description here"
+description = "Semantic MCP tool discovery with vector-based retrieval, based on arXiv:2603.20313"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.10"
 dependencies = [
-    "mcp[cli]>=1.27.1",
     "packaging>=24.2",
     "python-dotenv>=1.0.1",
     "weaviate-client>=4.10.0",
