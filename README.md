@@ -1,6 +1,4 @@
-SEMANTIC TOOL DISCOVERY FOR LARGE LANGUAGE MODELS: A VECTOR-BASED APPROACH TO TOOL SELECTION
-
-It is a minimal implementation of:
+Core implementation of:
 Semantic Tool Discovery for Large Language Models: A Vector-Based Approach to MCP Tool Selection
 https://arxiv.org/html/2603.20313v1
 
@@ -12,14 +10,6 @@ This repo applies a retrieval-first approach:
 - build one semantic document per tool
 - store those documents in a vector database
 - retrieve only top-K relevant tools per query (default K=3)
-
-This mirrors the paper's core idea: semantic filtering before passing tools to the model.
-
-## Scope (What This Project Does)
-
-- Parses static Python dictionaries in [tools.py](tools.py)
-- Indexes one document per tool in Weaviate
-- Runs hybrid retrieval (semantic + lexical) for top-K relevant tools
 
 
 ## Project Layout
