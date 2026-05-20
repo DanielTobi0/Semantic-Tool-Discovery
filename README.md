@@ -1,5 +1,10 @@
 # Semantic Tool Discovery for MCP
 
+A replication of the semantic tool discovery architecture described in:
+
+> **Semantic Tool Discovery for Large Language Models: A Vector-Based Approach to MCP Tool Selection**  
+> Mudunuri et al. (2026) — https://arxiv.org/abs/2603.20313
+
 This project parses the static MCP tool catalog in [src/tools.py](src/tools.py), converts each tool into a semantic document, stores those documents in Weaviate, and retrieves the most relevant tools for a user query.
 
 The notebook [entry_point.ipynb](entry_point.ipynb) is the current entry point. It demonstrates the full flow:
@@ -7,9 +12,22 @@ The notebook [entry_point.ipynb](entry_point.ipynb) is the current entry point. 
 2. run a sample retrieval query, and
 3. evaluate retrieval quality against the built-in dataset.
 
-The implementation is inspired by:
-Semantic Tool Discovery for Large Language Models: A Vector-Based Approach to MCP Tool Selection
-https://arxiv.org/html/2603.20313v1
+## Motivation
+
+Current MCP deployments expose all available tool definitions to the LLM on every request. Modern tool schemas require 200–800 tokens per tool; with 100 tools, this consumes 20K–80K tokens before any user query or response. The paper identifies two broader failure modes from this static provisioning approach:
+
+- **Token overhead and cost** — at scale, loading full catalogs is economically prohibitive and competes with conversation history and retrieved documents for context-window space.
+- **Accuracy degradation** — LLM performance degrades with increased context length. Presenting irrelevant tools introduces noise that reduces tool-selection accuracy, especially when tools have similar names.
+
+The paper proposes replacing static provisioning with **vector-based dynamic selection**: index all tools as dense embeddings and retrieve only the top-K most relevant tools for each query. Their benchmark across 121 tools from 5 MCP servers (Filesystem, MySQL, Slack, GitHub, Time/Weather) shows:
+
+| K | Hit Rate | MRR  | Token Reduction | Latency |
+|---|----------|------|-----------------|----------|
+| 1 | 85.0%    | 0.85 | 99.6%           | <91 ms  |
+| 3 | 97.1%    | 0.91 | 99.6%           | <91 ms  |
+| 5 | 97.1%    | 0.91 | 99.6%           | <91 ms  |
+
+K=3 is identified as the optimal operating point, achieving the best F1 (58.4%) while maintaining a 97.1% hit rate and 0.91 MRR.
 
 ## What It Does
 
@@ -53,21 +71,6 @@ Only three properties are stored in Weaviate:
 - `server`
 
 The `purpose`, `capabilities`, and `parameters` fields are embedded into `text` to improve retrieval quality.
-
-## Repository Layout
-
-- [src/tools.py](src/tools.py): static MCP tool catalog grouped by server
-- [src/core/](src/core): shared configuration, client, and dataclasses
-  - [src/core/config.py](src/core/config.py): environment loading and collection name
-  - [src/core/client.py](src/core/client.py): Weaviate client factory
-  - [src/core/models.py](src/core/models.py): `ToolChunk` and `RetrievedChunk`
-- [src/store_and_retrieve/](src/store_and_retrieve): parsing, ingestion, and retrieval
-  - [src/store_and_retrieve/parsing.py](src/store_and_retrieve/parsing.py): AST-based tool parser
-  - [src/store_and_retrieve/indexing.py](src/store_and_retrieve/indexing.py): collection creation and ingestion
-  - [src/store_and_retrieve/retrieval.py](src/store_and_retrieve/retrieval.py): hybrid retrieval API
-- [src/evaluation/](src/evaluation): query dataset and evaluation runner
-
-Compatibility exports are available from [src/__init__.py](src/__init__.py).
 
 ## Requirements
 
@@ -127,9 +130,3 @@ Typical evaluation output looks like:
 - `top_k=3`: default retrieval depth used in the notebook and evaluation loop
 - `alpha=0.65`: hybrid search blend between lexical and semantic matching
 - `score_threshold`: optional filter that falls back to top-K if it filters everything out
-
-## Troubleshooting
-
-- Weaviate connection errors: verify `WEAVIATE_API_KEY` and `WEAVIATE_URL`, and confirm network access to the cluster
-- Empty retrieval results: run ingestion again and confirm `McpToolChunks` exists
-- Vectorizer failures: verify `OPENAI_API_KEY` is set and valid
