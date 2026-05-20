@@ -1,4 +1,3 @@
-Core implementation of:
 Semantic Tool Discovery for Large Language Models: A Vector-Based Approach to MCP Tool Selection
 https://arxiv.org/html/2603.20313v1
 
@@ -9,15 +8,7 @@ This repo applies a retrieval-first approach:
 
 - build one semantic document per tool
 - store those documents in a vector database
-- retrieve only top-K relevant tools per query (default K=3)
-
-
-## Project Layout
-
-- [tools.py](tools.py): source tool catalog (filesystem, mysql, slack, github, time/weather)
-- [src/chunks/store.py](src/chunks/store.py): parsing and ingestion into Weaviate
-- [src/chunks/retrieve.py](src/chunks/retrieve.py): hybrid retrieval API
-- [src/chunks/__init__.py](src/chunks/__init__.py): public chunk module exports
+- retrieve only top-K relevant tools per user query (default K=3)
 
 ## How It Works
 
@@ -87,23 +78,4 @@ Example output:
 1. [filesystem] search_files (score=...)
 2. [filesystem] search_file_content (score=...)
 3. [slack] search_files (score=...)
-```
-
-## Programmatic Usage
-
-```python
-from src.chunks import ingest_tools_file, retrieve_tool_chunks
-
-# Ingest all tool docs from tools.py
-ingest_tools_file("tools.py")
-
-# Retrieve relevant tools for a query
-hits = retrieve_tool_chunks(
-		"find files in a directory",
-		top_k=3,
-		alpha=0.65,
-)
-
-for hit in hits:
-	print(hit.server, hit.tool_name, hit.score)
 ```
